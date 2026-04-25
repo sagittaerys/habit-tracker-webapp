@@ -2,15 +2,16 @@
 
 import { useState } from 'react'
 import { validateHabitName } from '@/lib/validators'
+import { getHabits, saveHabits, getSession } from '@/lib/storage'
 import type { Habit } from '@/types/habit'
 
 type Props = {
-  onSave: (data: { name: string; description: string }) => void
+  onSave: (habit: Habit) => void
   onCancel: () => void
-  initial?: Habit
+  editing?: Habit | null
 }
 
-export default function HabitForm({ onSave, onCancel, initial }: Props) {
+export default function HabitForm({ editing = null, onSave, onCancel }: Props) {
   const [nameError, setNameError] = useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -25,7 +26,32 @@ export default function HabitForm({ onSave, onCancel, initial }: Props) {
       return
     }
 
-    onSave({ name: validation.value, description })
+    const session = getSession()
+    if (!session) return
+
+    if (editing) {
+      const updated: Habit = {
+        ...editing,
+        name: validation.value,
+        description,
+      }
+      const all = getHabits()
+      saveHabits(all.map((h) => (h.id === editing.id ? updated : h)))
+      onSave(updated)
+    } else {
+      const newHabit: Habit = {
+        id: crypto.randomUUID(),
+        userId: session.userId,
+        name: validation.value,
+        description,
+        frequency: 'daily',
+        createdAt: new Date().toISOString(),
+        completions: [],
+      }
+      const all = getHabits()
+      saveHabits([...all, newHabit])
+      onSave(newHabit)
+    }
   }
 
   return (
@@ -48,7 +74,7 @@ export default function HabitForm({ onSave, onCancel, initial }: Props) {
           name="name"
           type="text"
           data-testid="habit-name-input"
-          defaultValue={initial?.name ?? ''}
+          defaultValue={editing?.name ?? ''}
           placeholder="e.g. Drink Water"
           className="w-full px-4 py-3 rounded-lg text-white text-sm"
           style={{
@@ -62,10 +88,7 @@ export default function HabitForm({ onSave, onCancel, initial }: Props) {
           onChange={() => setNameError(null)}
         />
         {nameError && (
-          <p
-            className="text-xs"
-            style={{ color: '#ff6b6b', fontFamily: 'var(--font-mono)' }}
-          >
+          <p className="text-xs" style={{ color: '#ff6b6b', fontFamily: 'var(--font-mono)' }}>
             {nameError}
           </p>
         )}
@@ -83,7 +106,7 @@ export default function HabitForm({ onSave, onCancel, initial }: Props) {
           id="habit-description"
           name="description"
           data-testid="habit-description-input"
-          defaultValue={initial?.description ?? ''}
+          defaultValue={editing?.description ?? ''}
           placeholder="Why does this habit matter?"
           rows={3}
           className="w-full px-4 py-3 rounded-lg text-white text-sm resize-none"
@@ -127,23 +150,15 @@ export default function HabitForm({ onSave, onCancel, initial }: Props) {
           type="submit"
           data-testid="habit-save-button"
           className="flex-1 py-3 rounded-lg font-bold text-sm tracking-wide"
-          style={{
-            background: 'var(--accent)',
-            color: '#000',
-            fontFamily: 'var(--font-syne)',
-          }}
+          style={{ background: 'var(--accent)', color: '#000', fontFamily: 'var(--font-syne)' }}
         >
-          {initial ? 'Save changes' : 'Create habit'}
+          {editing ? 'Save changes' : 'Create habit'}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-5 py-3 rounded-lg text-sm"
-          style={{
-            border: '1px solid var(--border)',
-            color: 'var(--muted)',
-            fontFamily: 'var(--font-mono)',
-          }}
+          style={{ border: '1px solid var(--border)', color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}
         >
           Cancel
         </button>
