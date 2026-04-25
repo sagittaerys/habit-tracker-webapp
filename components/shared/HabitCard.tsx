@@ -8,12 +8,13 @@ import type { Habit } from '@/types/habit'
 
 type Props = {
   habit: Habit
-  onToggle: (habit: Habit) => void
+  // onToggle: (habit: Habit) => void
   onEdit: (habit: Habit) => void
-  onDelete: (habit: Habit) => void
+  onDelete: (id: string) => void
+   onUpdate: (habit: Habit) => void
 }
 
-export default function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) {
+export default function HabitCard({ habit,  onEdit, onDelete }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const slug = getHabitSlug(habit.name)
   const today = new Date().toISOString().split('T')[0]
@@ -30,7 +31,7 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) 
       }}
     >
       {/* complete toggle */}
-      <button
+      {/* <button
         data-testid={`habit-complete-${slug}`}
         onClick={() => onToggle(habit)}
         className="flex-shrink-0 transition-transform hover:scale-110"
@@ -41,7 +42,7 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) 
         ) : (
           <BsCircle size={24} style={{ color: 'var(--muted)' }} />
         )}
-      </button>
+      </button> */}
 
       {/* habit info */}
       <div className="flex-1 min-w-0">
@@ -117,7 +118,7 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) 
           </span>
           <button
             data-testid="confirm-delete-button"
-            onClick={() => onDelete(habit)}
+            onClick={() => onDelete(habit.id)}
             className="px-3 py-1.5 rounded-lg text-xs font-bold"
             style={{ background: '#ff6b6b22', color: '#ff6b6b', fontFamily: 'var(--font-mono)' }}
           >

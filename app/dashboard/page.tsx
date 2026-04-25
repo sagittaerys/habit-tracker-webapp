@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { BsPlus } from 'react-icons/bs'
 import { getSession, clearSession, getHabits, saveHabits } from '@/lib/storage'
-import { toggleHabitCompletion } from '@/lib/habits'
-// import { getHabitSlug } from '@/lib/slug'
 import HabitCard from '@/components/shared/HabitCard'
 import HabitForm from '@/components/shared/HabitForm'
 import type { Habit } from '@/types/habit'
@@ -41,43 +39,22 @@ export default function DashboardPage() {
     setHabits(updated)
   }
 
-  function handleCreate(data: { name: string; description: string }) {
-    const newHabit: Habit = {
-      id: crypto.randomUUID(),
-      userId: session!.userId,
-      name: data.name,
-      description: data.description,
-      frequency: 'daily',
-      createdAt: new Date().toISOString(),
-      completions: [],
-    }
-    const updated = [...habits, newHabit]
-    handleSaveHabits(updated)
+  function handleSaveFromForm(habit: Habit) {
+    setHabits((prev) =>
+      prev.find((h) => h.id === habit.id)
+        ? prev.map((h) => (h.id === habit.id ? habit : h))
+        : [...prev, habit]
+    )
     setMode({ type: 'idle' })
   }
 
-  function handleEdit(data: { name: string; description: string }) {
-    if (mode.type !== 'editing') return
-    const updated = habits.map((h) =>
-      h.id === mode.habit.id
-        ? { ...mode.habit, name: data.name, description: data.description }
-        : h
-    )
-    handleSaveHabits(updated)
-    setMode({ type: 'idle' })
-  }
-
-  function handleDelete(habit: Habit) {
-    const updated = habits.filter((h) => h.id !== habit.id)
+  function handleDelete(id: string) {
+    const updated = habits.filter((h) => h.id !== id)
     handleSaveHabits(updated)
   }
 
-  function handleToggle(habit: Habit) {
-    const today = new Date().toISOString().split('T')[0]
-    const updated = habits.map((h) =>
-      h.id === habit.id ? toggleHabitCompletion(h, today) : h
-    )
-    handleSaveHabits(updated)
+  function handleUpdate(updated: Habit) {
+    setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)))
   }
 
   function handleLogout() {
@@ -134,9 +111,9 @@ export default function DashboardPage() {
             className="mb-6"
           >
             <HabitForm
-              onSave={mode.type === 'editing' ? handleEdit : handleCreate}
+              editing={mode.type === 'editing' ? mode.habit : null}
+              onSave={handleSaveFromForm}
               onCancel={() => setMode({ type: 'idle' })}
-              initial={mode.type === 'editing' ? mode.habit : undefined}
             />
           </motion.div>
         )}
@@ -175,9 +152,9 @@ export default function DashboardPage() {
               >
                 <HabitCard
                   habit={habit}
-                  onToggle={handleToggle}
                   onEdit={(h) => setMode({ type: 'editing', habit: h })}
                   onDelete={handleDelete}
+                  onUpdate={handleUpdate}
                 />
               </motion.div>
             ))}
