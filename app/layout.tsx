@@ -1,10 +1,17 @@
 import type { Metadata } from 'next'
-import { Montserrat } from 'next/font/google'
+import { Syne } from 'next/font/google'
+import { DM_Mono } from 'next/font/google'
 import './globals.css'
 
-const montserrat = Montserrat({
+const syne = Syne({
   subsets: ['latin'],
-  variable: '--font-montserrat',
+  variable: '--font-syne',
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-mono',
 })
 
 export const metadata: Metadata = {
@@ -18,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={montserrat.variable}>
-      <body className="bg-gray-950 text-white min-h-screen font-sans">
+    <html lang="en" className={`${syne.variable} ${dmMono.variable}`}>
+      <body className="bg-[#0a0a0a] text-white min-h-screen antialiased">
         {children}
       </body>
     </html>
