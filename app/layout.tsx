@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Syne } from 'next/font/google'
 import { DM_Mono } from 'next/font/google'
 import './globals.css'
+import ServiceWorkerRegistration from '@/components/shared/ServiceWorkerRegistration'
+
 
 const syne = Syne({
   subsets: ['latin'],
@@ -17,6 +19,7 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   title: 'Habit Tracker',
   description: 'Track your daily habits',
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
@@ -27,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${syne.variable} ${dmMono.variable}`}>
       <body className="bg-[#0a0a0a] text-white min-h-screen antialiased">
+        <ServiceWorkerRegistration />
         {children}
       </body>
     </html>
