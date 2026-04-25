@@ -16,7 +16,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:3000',
+    url: 'https://habit-tracker-webapp-cyan.vercel.app/',
     reuseExistingServer: true,
   },
 })

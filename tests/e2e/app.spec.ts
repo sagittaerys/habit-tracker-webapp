@@ -6,10 +6,7 @@ const testUser = {
 }
 
 test.describe('Habit Tracker app', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.evaluate(() => localStorage.clear())
-  })
-
+  
   test('shows the splash screen and redirects unauthenticated users to /login', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByTestId('splash-screen')).toBeVisible()
